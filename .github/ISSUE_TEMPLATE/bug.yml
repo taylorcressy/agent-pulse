@@ -1,0 +1,19 @@
+name: Bug report
+description: Report an incorrect or unavailable AgentPulse capability
+body:
+  - type: input
+    attributes:
+      label: OS and architecture
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: AgentPulse version, provider and CLI version
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Capability, expected behavior and reproduction steps
+      description: Remove project names and other private values before attaching an export.
+    validations:
+      required: true

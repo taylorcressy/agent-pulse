@@ -1,0 +1,49 @@
+{
+  "name": "agentpulse",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local observability for coding agents",
+  "main": "dist/desktop/main.cjs",
+  "packageManager": "pnpm@11.0.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev:desktop": "pnpm build:desktop && electron .",
+    "dev:web": "pnpm build:web && pnpm build:collector && node dist/collector/web.cjs",
+    "dev:demo": "vite --mode demo",
+    "build:web": "vite build --outDir dist/web",
+    "build:demo": "vite build --mode demo --outDir dist/demo",
+    "build:collector": "esbuild apps/web/src/server.ts --bundle --platform=node --format=cjs --outfile=dist/collector/web.cjs",
+    "build:desktop": "pnpm build:web && pnpm build:collector && esbuild apps/desktop/src/main.ts --bundle --platform=node --external:electron --format=cjs --outfile=dist/desktop/main.cjs",
+    "dist:desktop": "pnpm build:desktop && electron-builder",
+    "lint": "eslint packages apps tests",
+    "format:check": "prettier --check packages apps tests",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run tests/unit.test.ts",
+    "test:integration": "vitest run tests/integration.test.ts",
+    "test:e2e": "playwright test",
+    "verify": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm test:integration && pnpm build:desktop && pnpm build:demo"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1",
+    "@types/node": "24.10.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "electron": "45.3.4",
+    "electron-builder": "26.18.0",
+    "esbuild": "0.27.0",
+    "eslint": "9.39.1",
+    "lucide-react": "0.555.0",
+    "prettier": "3.7.3",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.48.1",
+    "vite": "8.3.8",
+    "vitest": "4.1.0",
+    "zod": "4.6.7"
+  },
+  "license": "MIT"
+}

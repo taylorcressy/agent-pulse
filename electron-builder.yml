@@ -1,0 +1,18 @@
+appId: local.agentpulse.desktop
+productName: AgentPulse
+directories:
+  output: release
+files:
+  - dist/desktop/**
+  - dist/collector/**
+  - dist/web/**
+  - package.json
+asar: true
+mac:
+  category: public.app-category.developer-tools
+  target: [dmg, zip]
+win:
+  target: [nsis, portable]
+linux:
+  category: Development
+  target: [AppImage, tar.gz]

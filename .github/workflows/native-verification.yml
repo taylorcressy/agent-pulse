@@ -1,0 +1,56 @@
+name: Native verification and unsigned artifacts
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      AGENTPULSE_TEST_DESKTOP: '1'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+      - if: runner.os == 'Linux'
+        run: pnpm exec playwright install --with-deps chromium
+      - if: runner.os != 'Linux'
+        run: pnpm exec playwright install chromium
+      - if: runner.os == 'Linux'
+        run: xvfb-run -a pnpm test:e2e
+      - if: runner.os != 'Linux'
+        run: pnpm test:e2e
+      - run: pnpm dist:desktop --publish never
+      - name: Generate checksums
+        shell: bash
+        run: |
+          node --input-type=module -e '
+            import {readdirSync,readFileSync,writeFileSync} from "node:fs";
+            import {createHash} from "node:crypto";
+            const files=readdirSync("release").filter(name=>/\.(dmg|zip|exe|AppImage|tar.gz)$/.test(name));
+            if(!files.length)process.exit(1);
+            writeFileSync("release/SHA256SUMS",files.map(name=>createHash("sha256").update(readFileSync("release/"+name)).digest("hex")+"  "+name).join("\n")+"\n");
+          '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agentpulse-${{ runner.os }}-${{ runner.arch }}-unsigned
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.exe
+            release/*.AppImage
+            release/*.tar.gz
+            release/SHA256SUMS
+            THIRD_PARTY_NOTICES.md

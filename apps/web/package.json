@@ -1,0 +1,5 @@
+{
+  "name": "@agentpulse/web",
+  "private": true,
+  "type": "module"
+}
